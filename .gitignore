@@ -1,6 +1,23 @@
 *.class
-
+bin
+lib
+logs
+configs
+setups
+aws
+src/test
 # Package Files #
 *.jar
 *.war
 *.ear
+*.zip
+# eclipse files
+.project
+.settings
+.classpath
+.checkstyle
+#maven
+pom.xml
+#linux modified
+*~
+
