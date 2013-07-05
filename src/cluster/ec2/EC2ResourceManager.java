@@ -11,6 +11,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.codec.binary.Base64;
+
 import cluster.AbstractResourceManager;
 import cluster.IResource;
 import cluster.IResourceType;
@@ -232,9 +234,8 @@ public class EC2ResourceManager extends AbstractResourceManager {
 	}
 
 	private static String encodeUserData(String userData) {
-		String base64encoded = com.sun.org.apache.xml.internal.security.utils.Base64
-				.encode(userData.getBytes());
-		return base64encoded;
+		byte[] bytes = org.apache.commons.codec.binary.Base64.encodeBase64(userData.getBytes());
+		return new String(bytes);
 	}
 
 	public void addInboundTCPPermission(String ip, String securityGroupName,
