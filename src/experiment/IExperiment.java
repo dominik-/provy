@@ -19,6 +19,6 @@ public interface IExperiment {
 	
 	public void runExperiment();
 	
-	public void storeResults();
+	public String getName();
 	
 }

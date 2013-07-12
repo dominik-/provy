@@ -1,11 +1,11 @@
 *.class
-bin
-lib
-logs
-configs
-setups
-aws
-src/test
+bin/
+lib/
+logs/
+configs/
+setups/
+aws/
+test/
 # Package Files #
 *.jar
 *.war

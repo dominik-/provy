@@ -18,10 +18,12 @@ public class ScalingExperiment implements IExperiment {
 	private ScalingExperimentSetup setup;
 	private ArrayList<IExperimentPhase> phases;
 	boolean setupFinished;
+	private String experimentName;
 
-	public ScalingExperiment() {
+	public ScalingExperiment(String name) {
 		setupFinished = setupExperiment();
 		logger.log(Level.INFO, "Setup finished.");
+		this.experimentName = name;
 	}
 
 	@Override
@@ -82,12 +84,6 @@ public class ScalingExperiment implements IExperiment {
 	}
 
 	@Override
-	public void storeResults() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public boolean setupExperiment() {
 		setup = new ScalingExperimentSetup();
 		return setup.createSetup();
@@ -96,6 +92,11 @@ public class ScalingExperiment implements IExperiment {
 	@Override
 	public IExperimentSetup getExperimentSetup() {
 		return setup;
+	}
+
+	@Override
+	public String getName() {
+		return experimentName;
 	}
 
 }
