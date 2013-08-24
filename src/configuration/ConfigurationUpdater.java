@@ -51,7 +51,11 @@ public class ConfigurationUpdater {
 
 	public void cloneConfiguration(String path) {
 		try {
-			FileUtils.copyDirectory(new File(path), new File(TMP_PATH));
+			File targetDir = new File(TMP_PATH);
+			if (targetDir.exists()) {
+				FileUtils.cleanDirectory(targetDir);
+			}
+			FileUtils.copyDirectory(new File(path), targetDir);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

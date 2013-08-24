@@ -5,7 +5,6 @@ logs/
 configs/
 setups/
 aws/
-test/experiment/
 # Package Files #
 *.jar
 *.war

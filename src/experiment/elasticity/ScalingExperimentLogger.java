@@ -18,7 +18,7 @@ public class ScalingExperimentLogger implements IExperimentLogger {
 			"yyyy-MM-dd");
 	private final static SimpleDateFormat LOG_DATE_FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss Z");
-	public final static String DEFAULT_LOGGING_DIRECTORY = "logs";
+	public final static String DEFAULT_LOGGING_DIRECTORY = "logs/";
 	private File logfile;
 	private FileWriter appendFileWriter;
 	private PrintWriter writer;
@@ -26,7 +26,7 @@ public class ScalingExperimentLogger implements IExperimentLogger {
 	public ScalingExperimentLogger(IExperiment experiment) {
 		this.experiment = experiment;
 		logfile = new File(DEFAULT_LOGGING_DIRECTORY
-				+ experiment.getName()
+				+ experiment.getName() +"_"
 				+ FILENAME_DATE_FORMAT.format(new Date(System
 						.currentTimeMillis())) + ".log");
 		try {
@@ -43,12 +43,24 @@ public class ScalingExperimentLogger implements IExperimentLogger {
 	public void log(IExperimentPhase phase) {
 		long timeval = System.currentTimeMillis();
 		writer.println("[START-PHASE] "+phase.getName()+" at "+ LOG_DATE_FORMAT.format(new Date(timeval)) + " ("+timeval+")");
+		writer.flush();
 	}
 
 	@Override
 	public void log(String command) {
 		long timeval = System.currentTimeMillis();
 		writer.println("[COMMAND] "+command+" at "+ LOG_DATE_FORMAT.format(new Date(timeval)) + " ("+timeval+")");
+		writer.flush();
+	}
+	
+	public void closeLogger(){
+		writer.close();
+		try {
+			appendFileWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

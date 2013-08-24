@@ -29,4 +29,6 @@ public interface IExperimentPhase extends Runnable{
 	
 	public boolean dependsOnPrevious();
 	
+	public boolean isFinished();
+	
 }

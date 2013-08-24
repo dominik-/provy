@@ -1,7 +1,6 @@
 package cluster;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Interface describing a wrapper to an actual IaaS cloud provider. It provides

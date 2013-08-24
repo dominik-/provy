@@ -2,8 +2,6 @@ package experiment.elasticity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,14 +12,12 @@ import cluster.IResource;
 import cluster.IResourceManager;
 import cluster.IResourceType;
 import cluster.ec2.EC2NodeLauncher;
-import cluster.ec2.EC2Resource;
 
 public class ElasticNodeManager implements INodeManager {
 
 	private final static Logger logger = Logger
 			.getLogger(ElasticNodeManager.class.getSimpleName());
 	private ArrayList<INode> nodes;
-	private boolean nodesAdding;
 	private HashMap<INodeType, Integer> typeCounter;
 
 	public ElasticNodeManager() {

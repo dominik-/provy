@@ -37,7 +37,7 @@ export JAVA_HOME=/opt/oracle-java/jdk1.7.0_17/
 # export HBASE_CLASSPATH=
 
 # The maximum amount of heap to use, in MB. Default is 1000.
-export HBASE_HEAPSIZE=1024
+export HBASE_HEAPSIZE=1000
 
 # Extra Java runtime options.
 # Below are what we set by default.  May only work with SUN JVM.

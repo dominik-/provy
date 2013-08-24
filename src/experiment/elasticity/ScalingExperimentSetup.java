@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import configuration.ConfigurationUpdater;
 import configuration.S3Uploader;
+import configuration.ScriptUpdater;
 
 import cluster.INode;
 import cluster.INodeManager;
@@ -23,7 +24,9 @@ import experiment.IExperimentSetup;
 
 public class ScalingExperimentSetup implements IExperimentSetup {
 
-	private final static String[] REQUIRED_CONFIG_ENTRIES = {"config_bucket","config_file","template_folder"};
+	private final static String[] REQUIRED_CONFIG_ENTRIES = { "s3_bucket",
+			"config_file", "configs_template", "setups_template",
+			"scripts_template", "private_key_file", "results_ebs_vol_id" };
 	private final static Logger logger = Logger
 			.getLogger(ScalingExperimentSetup.class.getSimpleName());
 	ArrayList<IResourceType> resourceTypes;
@@ -38,29 +41,46 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 	private ElasticNodeType slaveNode;
 	private ElasticNodeType ycsbNode;
 	private ArrayList<INode> initialSetup;
-	private String configBucket;
 	private String configFile;
-	private String templateFolder;
 	private String experimentConfig;
+	private String privateKeyFile;
+	private String configsTemplate;
+	private String scriptsTemplate;
+	private String setupsTemplate;
+	private String ebsVolume;
+	private String s3Bucket;
 
-	public ScalingExperimentSetup() {
+	public ScalingExperimentSetup(String propertiesFile) {
 		nodeManager = new ElasticNodeManager();
 		resourceManager = new EC2ResourceManager();
 		nodeTypes = new ArrayList<>();
 		resourceTypes = new ArrayList<>();
-		experimentConfig = "experiments/test-experiment.properties";
+		experimentConfig = propertiesFile;
 		configureSetup(experimentConfig);
-		config = new ConfigurationUpdater(nodeManager, templateFolder,
+		config = new ConfigurationUpdater(nodeManager, configsTemplate,
 				configFile);
-		masterResource = new EC2ResourceType("masterResource", "ami-f3e2ff87",
+		ScriptUpdater setupsUpdater = new ScriptUpdater(setupsTemplate,
+				"setups", s3Bucket);
+		setupsUpdater.updateScripts();
+		ScriptUpdater scriptsUpdateExperiments = new ScriptUpdater(
+				scriptsTemplate + "experiment", "scripts/experiment/", s3Bucket);
+		scriptsUpdateExperiments.updateScripts();
+		scriptsUpdateExperiments.uploadScripts();
+		ScriptUpdater scriptsUpdateInstall = new ScriptUpdater(scriptsTemplate
+				+ "install-scripts", "scripts/install-scripts/", s3Bucket);
+		scriptsUpdateInstall.updateScripts();
+		scriptsUpdateInstall.uploadScripts();
+		S3Uploader uploader = new S3Uploader();
+		uploader.uploadFile(privateKeyFile, s3Bucket);
+		masterResource = new EC2ResourceType("masterResource", "ami-a3001bd7",
 				"m1.small", "hbase", "hbase", "setups/userdata_master.txt",
-				"aws/hbase.pem", "ubuntu");
-		slaveResource = new EC2ResourceType("slaveResource", "ami-f3e2ff87",
+				privateKeyFile, "ubuntu");
+		slaveResource = new EC2ResourceType("slaveResource", "ami-a3001bd7",
 				"m1.small", "hbase", "hbase", "setups/userdata_slave.txt",
-				"aws/hbase.pem", "ubuntu");
-		ycsbResource = new EC2ResourceType("ycsbResource", "ami-f3e2ff87",
+				privateKeyFile, "ubuntu");
+		ycsbResource = new EC2ResourceType("ycsbResource", "ami-a3001bd7",
 				"m1.small", "hbase", "hbase", "setups/userdata_ycsb.txt",
-				"aws/hbase.pem", "ubuntu");
+				privateKeyFile, "ubuntu");
 		resourceTypes.add(masterResource);
 		resourceTypes.add(slaveResource);
 		resourceTypes.add(ycsbResource);
@@ -82,7 +102,7 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 		ArrayList<INode> master = nodeManager.addNodes(resourceManager,
 				masterNode, masterResource, 1);
 		ArrayList<INode> slave = nodeManager.addNodes(resourceManager,
-				slaveNode, slaveResource, 1);
+				slaveNode, slaveResource, 3);
 		ArrayList<INode> ycsb = nodeManager.addNodes(resourceManager, ycsbNode,
 				ycsbResource, 1);
 		initialSetup = new ArrayList<>();
@@ -95,9 +115,13 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 		Properties properties = loadConfiguration(experimentConfig);
 		if (properties == null)
 			throw new RuntimeException("Experiment configuration failed.");
-			configBucket = properties.getProperty("config_bucket");
-			configFile = properties.getProperty("config_file");
-			templateFolder=properties.getProperty("template_folder");
+		s3Bucket = properties.getProperty("s3_bucket");
+		configFile = properties.getProperty("config_file");
+		configsTemplate = properties.getProperty("configs_template");
+		scriptsTemplate = properties.getProperty("scripts_template");
+		setupsTemplate = properties.getProperty("setups_template");
+		privateKeyFile = properties.getProperty("private_key_file");
+		setEbsVolume(properties.getProperty("results_ebs_vol_id"));
 	}
 
 	public Properties loadConfiguration(String fileName) {
@@ -176,7 +200,7 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 		config.updateConfiguration();
 		config.makeZip();
 		S3Uploader uploader = new S3Uploader();
-		uploader.uploadFile(configFile, configBucket);
+		uploader.uploadFile(configFile, s3Bucket);
 		boolean isExempt = false;
 		for (INode node : nodeManager.getNodes()) {
 			isExempt = false;
@@ -203,6 +227,7 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 			toRemove[i] = candidates.get(maxNumber - i - 1);
 		}
 		nodeManager.removeNodes(resourceManager, toRemove);
+		update(new ArrayList<INode>());
 		return true;
 	}
 
@@ -213,7 +238,7 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 		config.updateConfiguration();
 		config.makeZip();
 		S3Uploader uploader = new S3Uploader();
-		uploader.uploadFile(configFile, configBucket);
+		uploader.uploadFile(configFile, s3Bucket);
 		try {
 			nodeManager.configureNodes(resourceManager, initialSetup);
 		} catch (InterruptedException e) {
@@ -223,6 +248,14 @@ public class ScalingExperimentSetup implements IExperimentSetup {
 		checkReadyState(initialSetup);
 		logger.logLaunchDurations();
 		return true;
+	}
+
+	public String getEbsVolume() {
+		return ebsVolume;
+	}
+
+	public void setEbsVolume(String ebsVolume) {
+		this.ebsVolume = ebsVolume;
 	}
 
 }

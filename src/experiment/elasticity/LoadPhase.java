@@ -11,28 +11,30 @@ public class LoadPhase implements IExperimentPhase {
 	private String name;
 	private String experimentName;
 	private long loadfactor;
-	long replicationFactor = 3;
-	long recordSize = 1000;
+	private final static long replicationFactor = 3;
+	private final static long recordSizeBytes = 1000;
 	private long memorySize;
 	int clusterSize;
-	
-	
-	public LoadPhase(String name, String experimentName, int memsizeGB, int loadFactor, INode target, ArrayList<INode> cluster){
+	boolean finished;
+
+	public LoadPhase(String name, String experimentName, int memsizeGB,
+			int loadFactor, INode target, ArrayList<INode> cluster) {
 		this.name = name;
 		this.experimentName = experimentName;
 		this.target = target;
-		this.memorySize=memsizeGB*1000000000;
+		this.memorySize = memsizeGB;
 		this.loadfactor = loadFactor;
 		clusterSize = cluster.size();
+		this.finished = false;
 	}
-	
+
 	@Override
 	public void run() {
-		long recordcount = (memorySize / recordSize) * loadfactor
-				* clusterSize
-				/ replicationFactor;
-		target.issueCommand("./load.sh "
-		+ experimentName + " " + recordcount,1);
+		long recordcount = (memorySize * recordSizeBytes * 1000) * loadfactor
+				* clusterSize / replicationFactor;
+		target.issueCommand("./load.sh " + experimentName + " " + recordcount,
+				5);
+		this.finished = true;
 	}
 
 	@Override
@@ -64,7 +66,7 @@ public class LoadPhase implements IExperimentPhase {
 
 	@Override
 	public boolean setTarget(INode target) {
-		if (this.target == null){
+		if (this.target == null) {
 			this.target = target;
 			return true;
 		}
@@ -78,12 +80,17 @@ public class LoadPhase implements IExperimentPhase {
 
 	@Override
 	public void setRelativeStart(long startTime) {
-		
+
 	}
 
 	@Override
 	public boolean dependsOnPrevious() {
 		return true;
+	}
+
+	@Override
+	public boolean isFinished() {
+		return finished;
 	}
 
 }

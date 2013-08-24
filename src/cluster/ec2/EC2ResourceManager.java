@@ -11,8 +11,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.codec.binary.Base64;
-
 import cluster.AbstractResourceManager;
 import cluster.IResource;
 import cluster.IResourceType;

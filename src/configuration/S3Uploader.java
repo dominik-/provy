@@ -3,14 +3,16 @@ package configuration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.io.FileUtils;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.auth.PropertiesCredentials;
-import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -30,6 +32,13 @@ public class S3Uploader {
 		boolean authenticated = authenticateWithProvider(credentialsFilePath);
 		if (!authenticated)
 			throw new RuntimeException("Authentication failed. Aborting.");
+	}
+
+	public boolean createBucket(String bucketName) {
+		if (!s3.doesBucketExist(bucketName)) {
+			s3.createBucket(bucketName);
+		}
+		return true;
 	}
 
 	public boolean authenticateWithProvider(String authenticationFile) {
@@ -104,6 +113,7 @@ public class S3Uploader {
 	}
 
 	public boolean uploadFile(String fileName, String bucketName) {
+		createBucket(bucketName);
 		File file = new File(fileName);
 		if (file.exists()) {
 			PutObjectRequest req = new PutObjectRequest(bucketName, fileName,
@@ -116,6 +126,21 @@ public class S3Uploader {
 			return true;
 		}
 		return false;
+	}
 
+	public boolean uploadFolder(String folderName, String bucketName,
+			String targetFolder) {
+		createBucket(bucketName);
+		Iterator<File> files = FileUtils.iterateFiles(new File(folderName),
+				null, true);
+		PutObjectRequest req;
+		while (files.hasNext()) {
+			File current = files.next();
+			req = new PutObjectRequest(bucketName, targetFolder
+					+ current.getName(), current);
+			req.setCannedAcl(CannedAccessControlList.PublicRead);
+			s3.putObject(req);
+		}
+		return true;
 	}
 }

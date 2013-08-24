@@ -13,7 +13,7 @@ public interface IExperiment {
 	
 	public boolean addPhase(IExperimentPhase phase);
 	
-	public boolean setupExperiment();
+	public boolean setupExperiment(String configFile);
 	
 	public IExperimentSetup getExperimentSetup();
 	

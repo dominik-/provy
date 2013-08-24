@@ -1,6 +1,6 @@
 package test;
 
-import experiment.elasticity.ScalingExperiment;
+import experiment.elasticity.ScaleoutExperiment;
 
 public class DefaultScalingExperiment {
 
@@ -8,8 +8,7 @@ public class DefaultScalingExperiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ScalingExperiment experiment = new ScalingExperiment("simple-experiment");
+		ScaleoutExperiment experiment = new ScaleoutExperiment("test-experiment-1","experiments/scaleout-experiment.properties");
 		experiment.runExperiment();
 	}
-
 }
