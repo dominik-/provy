@@ -1,0 +1,6 @@
+wget --no-check-certificate https://BUCKET_NAME.s3-eu-west-1.amazonaws.com/scripts/install-scripts/runit.sh
+chmod +x runit.sh
+wget --no-check-certificate https://BUCKET_NAME.s3-eu-west-1.amazonaws.com/scripts/install-scripts/update-config.sh
+chmod +x update-config.sh
+./runit.sh config-slave
+sudo ./runit.sh install-ganglia

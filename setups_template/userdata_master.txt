@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e -x
+export DEBIAN_FRONTEND=noninteractive
+export EC2_INSTANCE_ID=\"`wget -q -O - http://169.254.169.254/latest/meta-data/instance-id`\"
+echo EC2_INSTANCE_ID=$EC2_INSTANCE_ID >> /etc/environment
+source /etc/environment
+wget --no-check-certificate https://BUCKET_NAME.s3-eu-west-1.amazonaws.com/scripts/install-scripts/install-jdk.sh
+chmod +x install-jdk.sh
+sudo ./install-jdk.sh
+wget --no-check-certificate https://BUCKET_NAME.s3-eu-west-1.amazonaws.com/scripts/install-scripts/setup-common.sh
+chmod +x setup-common.sh
+./setup-common.sh
+wget --no-check-certificate https://BUCKET_NAME.s3-eu-west-1.amazonaws.com/scripts/install-scripts/setup-master.sh
+chmod +x setup-master.sh
+./setup-master.sh
+apt-get install -y s3cmd
