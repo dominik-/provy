@@ -15,6 +15,7 @@ Prerequisites
    - EC2 Security-group called 'hbase'
    - EC2 Key-Pair (save *.pem file on local PC) for the latter security group
    - An EBS volume for experimental results
+   - A (unique) S3 bucket name on the eu-west S3 region.
 
 SECURITY WARNING: do not use AWS key-pairs or S3 buckets, which are in productive usage or provide access to any private data. They will be stored on publicly accessible locations / used as public locations! Also, a disclosed location is not a secure location!
 
@@ -40,6 +41,8 @@ Setup
 --------------------------------
 Running
 --------------------------------
+
+By default, a cluster of 5 nodes is started: 1 master, 3 slaves, 1 workload generator (all instances are m1.small).
 
 - Project main file is at src/test/DefaultScalingExperiment.java
 - Change the experiment name for every run!
