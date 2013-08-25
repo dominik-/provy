@@ -1,13 +1,21 @@
 provy
 =====
 
-Java framework for cluster management and elasticity-related experiments.
+Java framework for cluster management / scaling and elasticity-related experiments.
+The current implementation works with HBase/Hadoop and Amazon EC2.
 
 This project comes 'as is', i.e. without any warranty or support. Use with care and cost awareness!
 
 ------------------------------
-Prerequisites
+Requirements
 ------------------------------
+
+- Oracle Java Development Kit 7
+
+- Maven dependencies:
+   - Apache Commons IO
+   - AWS Java SDK
+   - SSHJ (https://github.com/shikhar/sshj)
 
 - Amazon Web Services account with...
    - S3 Access
@@ -17,7 +25,7 @@ Prerequisites
    - An EBS volume for experimental results
    - A (unique) S3 bucket name on the eu-west S3 region.
 
-SECURITY WARNING: do not use AWS key-pairs or S3 buckets, which are in productive usage or provide access to any private data. They will be stored on publicly accessible locations / used as public locations! Also, a disclosed location is not a secure location!
+SECURITY WARNING: do not use AWS key-pairs or S3 buckets, which are in productive use or provide access to any private data. They will be stored on publicly accessible locations / used as public locations! A disclosed location is NOT a secure location!
 
 - The following software packages must be located on the S3 bucket in the folder 'tar':
    - jdk-7u17-linux-x64.tar.gz
@@ -27,7 +35,7 @@ SECURITY WARNING: do not use AWS key-pairs or S3 buckets, which are in productiv
    - zookeeper-3.4.5.tar.gz
    - ycsb-0.1.4.tar.gz
 
-NOTE: YCSB has to be modified to be usable with these specific HBase and Hadoop versions. A fork of the original YCSB fulfilling these requirements can be found at https://github.com/dominik-/YCSB. The remaining tarballs can be acquired in public archives.
+NOTE: YCSB has to be modified to be usable with these specific HBase and Hadoop versions. A fork of the original YCSB fulfilling these requirements can be found at https://github.com/dominik-/YCSB.
 
 -------------------------------
 Setup
