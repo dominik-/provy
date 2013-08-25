@@ -11,12 +11,12 @@ scripts/
 *.ear
 *.zip
 # eclipse files
-.project
-.settings
-.classpath
-.checkstyle
+*.project
+*.settings
+*.classpath
+*.checkstyle
 #key files
-.pem
+*.pem
 #maven
 target
 #pom.xml
